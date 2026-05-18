@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Johnny Simoncic — Cinematographer & Video Producer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090909;
+      --surface: #111;
+      --accent: #c8a96e;
+      --text-1: #f0ede8;
+      --text-2: #88887f;
+      --text-3: #3f3f3a;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--accent); color: #090909; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 2px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 40;
+      transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(9,9,9,0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-logo:hover { color: var(--accent); }
+    .nav-links { display: flex; gap: 2.5rem; }
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-1); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 75% 65% at 68% 28%, rgba(200,169,110,0.055) 0%, transparent 62%);
+    }
+    .hero-fade {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 160px;
+      pointer-events: none;
+      background: linear-gradient(to top, var(--bg), transparent);
+    }
+    .hero-content {
+      flex: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 7rem 2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 60ms forwards;
+    }
+    .hero-name-fill {
+      font-weight: 800;
+      line-height: 0.82;
+      letter-spacing: -0.035em;
+      color: var(--text-1);
+      font-size: clamp(4rem, 14.5vw, 14rem);
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 180ms forwards;
+    }
+    .hero-name-outline {
+      font-weight: 800;
+      line-height: 0.82;
+      letter-spacing: -0.035em;
+      -webkit-text-stroke: 2px var(--accent);
+      color: transparent;
+      font-size: clamp(4rem, 14.5vw, 14rem);
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 300ms forwards;
+    }
+    .hero-meta {
+      margin-top: 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.25rem 1rem;
+      color: var(--text-2);
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 420ms forwards;
+    }
+    .hero-meta .dot { color: var(--text-3); }
+    .hero-ctas {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 560ms forwards;
+    }
+    .hero-bottom {
+      max-width: 1320px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 0;
+      animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) 720ms forwards;
+    }
+    .hero-scroll-label {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+    .hero-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: var(--text-3);
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent);
+      color: #090909;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: filter 0.18s, transform 0.18s cubic-bezier(0.16,1,0.3,1);
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      text-decoration: none;
+      transition: all 0.18s cubic-bezier(0.16,1,0.3,1);
+      cursor: pointer;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); transform: translateY(-1px); }
+    .btn-ghost:active { transform: scale(0.98); }
+
+    /* ── SECTION SHARED ── */
+    .section-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ── WORK ── */
+    #work { padding: 7rem 0; }
+    .work-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3rem;
+    }
+    .work-header h2 {
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--text-1);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .work-header a {
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+    }
+    .work-header a:hover { color: var(--text-1); }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .card { position: relative; overflow: hidden; border-radius: 4px; cursor: pointer; }
+    .card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s ease;
+    }
+    .card:hover img { transform: scale(1.04); }
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.08) 100%);
+    }
+    .card-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.25rem;
+    }
+    .card-cat {
+      align-self: flex-start;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(200,169,110,0.1);
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+    }
+    .card-bottom h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.25rem;
+      transition: color 0.2s;
+    }
+    .card:hover .card-bottom h3 { color: var(--accent); }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-year { font-size: 13px; color: rgba(255,255,255,0.45); }
+    .card-view {
+      font-size: 13px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: all 0.2s;
+    }
+    .card:hover .card-view { opacity: 1; transform: translateX(0); }
+
+    .col-span-2 { grid-column: span 2; }
+    .col-span-3 { grid-column: span 3; }
+    .h-380 { height: 380px; }
+    .h-260 { height: 260px; }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 7rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .about-grid h2 {
+      font-weight: 700;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--text-1);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
+    .about-bio p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-2);
+      max-width: 480px;
+      margin-bottom: 1rem;
+    }
+    .about-ctas { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+    .stat {
+      background: var(--bg);
+      padding: 2rem 1.5rem;
+    }
+    .stat-value {
+      font-weight: 700;
+      font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-2);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 7rem 0;
+      border-top: 1px solid var(--border);
+      background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(200,169,110,0.04) 0%, transparent 60%);
+    }
+    #contact h2 {
+      font-weight: 700;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      color: var(--text-1);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 1.5rem;
+      max-width: 680px;
+    }
+    .contact-sub {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-2);
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+    }
+    .email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+    .email-link span {
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 600;
+      color: var(--text-1);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: var(--border);
+      transition: color 0.2s;
+    }
+    .email-link:hover span { color: var(--accent); }
+    .email-arrow {
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all 0.2s;
+    }
+    .email-link:hover .email-arrow { opacity: 1; transform: translateX(0); }
+    .socials {
+      margin-top: 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .socials a {
+      font-size: 14px;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .socials a:hover { color: var(--text-1); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-copy { font-size: 13px; color: var(--text-3); }
+    .footer-links { display: flex; align-items: center; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-2); }
+
+    /* ── GRAIN ── */
+    #grain {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.028;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; opacity: 1 !important; transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Grain overlay -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<!-- Nav -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Simo Prods</a>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-fade"></div>
+  <div class="hero-content">
+    <p class="hero-label">Cinematographer &amp; Video Producer</p>
+    <div>
+      <div class="hero-name-fill">JOHNNY</div>
+      <div class="hero-name-outline">SIMONCIC</div>
+    </div>
+    <div class="hero-meta">
+      <span>Iowa City, IA</span>
+      <span class="dot">·</span>
+      <span>Available for projects</span>
+      <span class="dot">·</span>
+      <span>2025</span>
+    </div>
+    <div class="hero-ctas">
+      <a href="#contact" class="btn-primary">Get in touch</a>
+      <a href="#work" class="btn-ghost">
+        Selected work
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="hero-bottom">
+    <span class="hero-scroll-label">Scroll to explore</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- Work -->
+<section id="work">
+  <div class="container">
+    <div class="work-header">
+      <div>
+        <span class="section-label">Portfolio</span>
+        <h2>Selected work</h2>
+      </div>
+      <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer">
+        All projects
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <div class="work-grid">
+      <!-- Row 1: 2-col + 1-col -->
+      <div class="card col-span-2 h-380">
+        <img src="https://picsum.photos/seed/hawkeyes24/1200/800" alt="Iowa Hawkeyes Athletics" loading="lazy"/>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-cat">Sports Cinematography</span>
+          <div class="card-bottom">
+            <h3>Iowa Hawkeyes Athletics</h3>
+            <div class="card-meta">
+              <span class="card-year">2024</span>
+              <span class="card-view">View <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card h-380">
+        <img src="https://picsum.photos/seed/ignatfb24/800/1000" alt="Saint Ignatius Football" loading="lazy"/>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-cat">High School Athletics</span>
+          <div class="card-bottom">
+            <h3>Saint Ignatius Football</h3>
+            <div class="card-meta">
+              <span class="card-year">2023–24</span>
+              <span class="card-view">View <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: 1-col + 2-col -->
+      <div class="card h-380">
+        <img src="https://picsum.photos/seed/flightcrew319/800/1000" alt="Flight Crew 319" loading="lazy"/>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-cat">Team Video</span>
+          <div class="card-bottom">
+            <h3>Flight Crew 319</h3>
+            <div class="card-meta">
+              <span class="card-year">2024</span>
+              <span class="card-view">View <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card col-span-2 h-380">
+        <img src="https://picsum.photos/seed/ifccampaign/1200/800" alt="IFC Campaign" loading="lazy"/>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-cat">Institutional Marketing</span>
+          <div class="card-bottom">
+            <h3>IFC Campaign</h3>
+            <div class="card-meta">
+              <span class="card-year">2024</span>
+              <span class="card-view">View <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: full width -->
+      <div class="card col-span-3 h-260">
+        <img src="https://picsum.photos/seed/branded2023/1920/700" alt="Branded Content" loading="lazy"/>
+        <div class="card-overlay"></div>
+        <div class="card-content">
+          <span class="card-cat">Commercial</span>
+          <div class="card-bottom">
+            <h3>Branded Content</h3>
+            <div class="card-meta">
+              <span class="card-year">2023</span>
+              <span class="card-view">View <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-bio">
+        <span class="section-label">About</span>
+        <h2>Film-first thinking,<br>built for athletics.</h2>
+        <p>Based in Iowa City, Johnny Simoncic is a video producer and cinematographer operating as Simo Prods. He creates game-day coverage, recruitment films, and branded content for college and high school programs across the midwest.</p>
+        <p>Studying Business Marketing at the University of Iowa, he produces content for Hawkeyes athletics while building his client roster. His approach is cinematic and direct — built to perform on social feeds and stand up on the biggest screens.</p>
+        <div class="about-ctas">
+          <a href="#contact" class="btn-primary">Work together</a>
+          <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer" class="btn-ghost">Follow on X</a>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-value">3+</div>
+          <div class="stat-label">Years producing</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">47</div>
+          <div class="stat-label">Projects delivered</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">D1</div>
+          <div class="stat-label">Athletics content</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">'29</div>
+          <div class="stat-label">University of Iowa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <span class="section-label">Contact</span>
+    <h2>Let's make<br>something real.</h2>
+    <p class="contact-sub">Looking for a cinematographer for your program, brand, or event? Reach out — always open to the right project.</p>
+    <a href="mailto:johnny@simoprods.com" class="email-link">
+      <span>johnny@simoprods.com</span>
+      <svg class="email-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <div class="socials">
+      <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a href="https://instagram.com/simoprods" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://linkedin.com/in/johnny-simoncic-607290316" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container footer-inner">
+    <span class="footer-copy">© 2025 Johnny Simoncic / Simo Prods</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <span class="footer-copy">Iowa City, IA</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+</script>
+
+</body>
+</html>
