@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Johnny Simoncic — Cinematographer & Video Producer · Reel '25</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: #111;
+      --accent: #c8a96e;
+      --accent-2: #e6dfc8;
+      --text-1: #f0ede8;
+      --text-2: #88887f;
+      --text-3: #3f3f3a;
+      --border: rgba(255,255,255,0.07);
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Outfit', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none !important; }
+    }
+
+    ::selection { background: var(--accent); color: #080808; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 2px; }
+
+    a, button { cursor: none; }
+    @media (hover: none), (pointer: coarse) { a, button { cursor: pointer; } }
+
+    /* ───── CUSTOM CURSOR ───── */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate3d(-50%, -50%, 0);
+      mix-blend-mode: difference;
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(200, 169, 110, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate3d(-50%, -50%, 0);
+      transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
+    }
+    body.cursor-hover #cursor { width: 0; height: 0; }
+    body.cursor-hover #cursor-ring { width: 52px; height: 52px; border-color: var(--accent); }
+    body.cursor-view #cursor-ring {
+      width: 76px; height: 76px;
+      border-color: var(--accent);
+      background: rgba(200, 169, 110, 0.08);
+    }
+    body.cursor-view #cursor-ring::after {
+      content: 'VIEW';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+
+    /* ───── SCROLL PROGRESS ───── */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 100%;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      z-index: 60;
+    }
+
+    /* ───── VERTICAL SIDE LABEL ───── */
+    #side-label {
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: left center;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--text-3);
+      z-index: 30;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #side-label .dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.4); box-shadow: 0 0 10px rgba(200, 169, 110, 0.6); }
+    }
+    @media (max-width: 1024px) { #side-label { display: none; } }
+
+    /* ───── GRAIN ───── */
+    #grain {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0.035;
+      mix-blend-mode: overlay;
+    }
+
+    /* ───── NAV ───── */
+    nav#topnav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 40;
+      transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+    }
+    nav#topnav.scrolled {
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+      height: 72px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+    }
+    .nav-logo {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .nav-logo::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      justify-self: center;
+    }
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--text-1); }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+    .nav-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--text-2);
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-time::before {
+      content: 'IA·CT';
+      color: var(--text-3);
+      font-size: 10px;
+    }
+    @media (max-width: 760px) {
+      .nav-inner { grid-template-columns: 1fr 1fr; padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .nav-time { justify-self: end; }
+    }
+
+    /* ───── BUTTONS ───── */
+    .btn-primary, .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.65rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      border-radius: 3px;
+      text-decoration: none;
+      will-change: transform;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #080808;
+      font-weight: 600;
+      border: none;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-2);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+      z-index: 0;
+    }
+    .btn-primary:hover::before { transform: scaleX(1); transform-origin: right; }
+    .btn-primary > * { position: relative; z-index: 1; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-1);
+      font-weight: 500;
+      border: 1px solid var(--border);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ───── HERO ───── */
+    #hero {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 60% at 70% 25%, rgba(200,169,110,0.06) 0%, transparent 60%);
+    }
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(to top, var(--bg) 0%, transparent 30%),
+        radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+    }
+    .hero-content {
+      flex: 1;
+      max-width: 1320px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 7rem 2.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hero-label::before {
+      content: 'REC';
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: #ff3838;
+      padding: 2px 6px;
+      border: 1px solid rgba(255,56,56,0.5);
+      border-radius: 2px;
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .hero-timecode {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--text-2);
+    }
+    .hero-name {
+      cursor: none;
+    }
+    .hero-name .line {
+      display: block;
+      overflow: hidden;
+      line-height: 0.82;
+    }
+    .hero-name .char {
+      display: inline-block;
+      will-change: transform, opacity;
+      transform: translateY(110%);
+      opacity: 0;
+    }
+    body.no-anime .hero-name .char {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .hero-name-fill {
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      color: var(--text-1);
+      font-size: clamp(4rem, 14.5vw, 14rem);
+    }
+    .hero-name-outline {
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      font-size: clamp(4rem, 14.5vw, 14rem);
+      -webkit-text-stroke: 2px var(--accent);
+      color: transparent;
+      transition: color 0.6s ease, -webkit-text-stroke-color 0.6s ease;
+    }
+    .hero-name:hover .hero-name-outline {
+      color: var(--accent);
+    }
+    .hero-meta {
+      margin-top: 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem 1.25rem;
+      color: var(--text-2);
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+    .hero-meta .dot { color: var(--text-3); }
+    .hero-meta .mono {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      padding: 3px 8px;
+      border: 1px solid rgba(200,169,110,0.3);
+      border-radius: 2px;
+    }
+    .hero-ctas {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .hero-bottom {
+      max-width: 1320px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 2.5rem 2rem;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-scroll-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .hero-scroll-label .arrow {
+      animation: bobArrow 1.8s ease-in-out infinite;
+    }
+    @keyframes bobArrow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+    .hero-coords {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--text-3);
+    }
+
+    /* Fade-in for hero non-name elements */
+    .hero-fade { opacity: 0; transform: translateY(20px); }
+    body.no-anime .hero-fade { opacity: 1; transform: none; }
+
+    /* ───── MARQUEE ───── */
+    .marquee {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.4rem 0;
+      background: var(--bg);
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      gap: 3rem;
+      animation: scrollX 45s linear infinite;
+    }
+    .marquee-reverse .marquee-track {
+      animation: scrollXRev 55s linear infinite;
+    }
+    .marquee-track > span {
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+    .marquee-track > span::after {
+      content: '';
+      width: 14px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .marquee-track .ghost {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--accent);
+    }
+    @keyframes scrollX {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes scrollXRev {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+
+    /* ───── SECTION BASE ───── */
+    .container { max-width: 1320px; margin: 0 auto; padding: 0 2.5rem; }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .section-label::before {
+      content: '';
+      width: 22px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    /* Reveal animations */
+    .reveal-words { display: inline-block; }
+    .reveal-words .word {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+    }
+    .reveal-words .word > span {
+      display: inline-block;
+      transform: translateY(110%);
+      will-change: transform;
+    }
+    body.no-anime .reveal-words .word > span { transform: none; }
+    .reveal-up { opacity: 0; transform: translateY(30px); will-change: transform, opacity; }
+    body.no-anime .reveal-up { opacity: 1; transform: none; }
+
+    /* ───── WORK ───── */
+    #work { padding: 8rem 0 7rem; position: relative; }
+    .work-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .work-header h2 {
+      font-weight: 700;
+      font-size: clamp(2.2rem, 5.5vw, 4rem);
+      color: var(--text-1);
+      line-height: 0.95;
+      letter-spacing: -0.025em;
+    }
+    .work-meta-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+    .work-meta-right .count {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--text-3);
+    }
+    .work-meta-right a {
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s, gap 0.25s;
+    }
+    .work-meta-right a:hover { color: var(--text-1); gap: 0.85rem; }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      will-change: transform;
+    }
+    .card-img-wrap {
+      position: absolute;
+      inset: -6%;
+      will-change: transform;
+      transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .card:hover .card-img-wrap { transform: scale(1.06); }
+    .card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.85) brightness(0.95);
+      transition: filter 0.5s ease;
+    }
+    .card:hover img { filter: saturate(1.05) brightness(1); }
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
+    }
+    .card-grid-lines {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .card:hover .card-grid-lines { opacity: 1; }
+    .card-grid-lines::before, .card-grid-lines::after {
+      content: '';
+      position: absolute;
+      background: rgba(200,169,110,0.18);
+    }
+    .card-grid-lines::before {
+      left: 33.33%; right: 33.33%;
+      top: 0; bottom: 0;
+      border-left: 1px solid currentColor;
+      border-right: 1px solid currentColor;
+      color: rgba(200,169,110,0.15);
+      background: transparent;
+    }
+    .card-grid-lines .h1, .card-grid-lines .h2 {
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: rgba(200,169,110,0.15);
+    }
+    .card-grid-lines .h1 { top: 33.33%; }
+    .card-grid-lines .h2 { top: 66.66%; }
+    .card-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.4rem;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .card-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--text-1);
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+      border-radius: 2px;
+    }
+    .card-tc {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.6);
+      text-align: right;
+    }
+    .card-tc span { display: block; color: var(--accent); }
+    .card-bottom h3 {
+      font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.4rem;
+      transition: color 0.25s;
+    }
+    .card:hover .card-bottom h3 { color: var(--accent); }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-cat {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .card-year {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Asymmetric grid placement */
+    .card-1 { grid-column: span 8; grid-row: span 2; height: 540px; }
+    .card-2 { grid-column: span 4; height: 260px; margin-top: 0; }
+    .card-3 { grid-column: span 4; height: 260px; transform: translateY(20px); }
+    .card-4 { grid-column: span 5; height: 360px; grid-column-start: 1; }
+    .card-5 { grid-column: span 7; height: 360px; }
+    .card-6 { grid-column: span 12; height: 320px; }
+
+    @media (max-width: 900px) {
+      .card-1, .card-2, .card-3, .card-4, .card-5, .card-6 {
+        grid-column: span 12;
+        height: 320px;
+        transform: none;
+      }
+      .card-1 { height: 380px; }
+    }
+
+    /* ───── ABOUT ───── */
+    #about {
+      padding: 8rem 0;
+      border-top: 1px solid var(--border);
+      position: relative;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    .about-grid h2 {
+      font-weight: 700;
+      font-size: clamp(2rem, 4.2vw, 3.2rem);
+      color: var(--text-1);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      margin-bottom: 2.5rem;
+    }
+    .about-bio p {
+      font-size: 15.5px;
+      line-height: 1.75;
+      color: var(--text-2);
+      max-width: 520px;
+      margin-bottom: 1.1rem;
+    }
+    .about-bio p strong {
+      color: var(--text-1);
+      font-weight: 500;
+    }
+    .about-ctas { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-left: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+    }
+    .stat {
+      padding: 2.2rem 1.6rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .stat::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-3);
+    }
+    .stat-value {
+      font-weight: 800;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-suffix {
+      font-size: 0.5em;
+      vertical-align: super;
+      color: var(--accent-2);
+      margin-left: 4px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-2);
+      letter-spacing: 0.03em;
+      line-height: 1.5;
+    }
+
+    /* Service tags row */
+    .services {
+      margin-top: 4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .service-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      transition: all 0.3s;
+    }
+    .service-tag:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* ───── CONTACT ───── */
+    #contact {
+      padding: 9rem 0;
+      border-top: 1px solid var(--border);
+      background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(200,169,110,0.05) 0%, transparent 60%);
+      position: relative;
+    }
+    #contact h2 {
+      font-weight: 700;
+      font-size: clamp(2.5rem, 7vw, 6rem);
+      color: var(--text-1);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+      max-width: 900px;
+    }
+    #contact h2 em {
+      font-style: normal;
+      -webkit-text-stroke: 2px var(--accent);
+      color: transparent;
+    }
+    .contact-sub {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-2);
+      max-width: 440px;
+      margin-bottom: 3rem;
+    }
+    .email-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      padding: 1.4rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      max-width: 700px;
+      justify-content: space-between;
+      transition: border-color 0.3s;
+    }
+    .email-link:hover { border-color: rgba(200,169,110,0.4); }
+    .email-link span.email {
+      font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+      font-weight: 600;
+      color: var(--text-1);
+      transition: color 0.3s, transform 0.3s;
+    }
+    .email-link:hover span.email {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+    .email-arrow {
+      color: var(--accent);
+      transition: transform 0.3s;
+    }
+    .email-link:hover .email-arrow { transform: translateX(8px) rotate(-45deg); }
+    .socials {
+      margin-top: 3.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+    }
+    .socials a {
+      font-size: 14px;
+      color: var(--text-2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+    }
+    .socials a:hover { color: var(--accent); }
+    .socials a::after {
+      content: '↗';
+      font-size: 14px;
+      opacity: 0.6;
+      transition: transform 0.3s;
+    }
+    .socials a:hover::after { transform: translate(2px, -2px); }
+
+    /* ───── FOOTER ───── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+    }
+    .footer-inner a {
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-inner a:hover { color: var(--accent); }
+    .footer-mid { display: flex; gap: 1.5rem; }
+    .footer-mark {
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.15em;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .hero-name .char, .hero-fade, .reveal-up { opacity: 1 !important; transform: none !important; }
+      .reveal-words .word > span { transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Scroll progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Custom cursor -->
+<div id="cursor-ring"></div>
+<div id="cursor"></div>
+
+<!-- Vertical side label -->
+<div id="side-label">
+  <span class="dot"></span>
+  <span>SIMO PRODS · EST '22 · IOWA CITY · 41.66°N 91.53°W</span>
+</div>
+
+<!-- Grain -->
+<svg id="grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<!-- Nav -->
+<nav id="topnav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Simo Prods</a>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-time" id="nav-time">--:--</div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-content">
+    <div class="hero-top-row hero-fade" data-delay="0">
+      <p class="hero-label">Cinematographer &amp; Video Producer</p>
+      <p class="hero-timecode" id="timecode">00:00:00:00</p>
+    </div>
+
+    <h1 class="hero-name">
+      <div class="line hero-name-fill">
+        <span class="char">J</span><span class="char">O</span><span class="char">H</span><span class="char">N</span><span class="char">N</span><span class="char">Y</span>
+      </div>
+      <div class="line hero-name-outline">
+        <span class="char">S</span><span class="char">I</span><span class="char">M</span><span class="char">O</span><span class="char">N</span><span class="char">C</span><span class="char">I</span><span class="char">C</span>
+      </div>
+    </h1>
+
+    <div class="hero-meta hero-fade" data-delay="200">
+      <span>Iowa City, IA</span>
+      <span class="dot">·</span>
+      <span class="mono">REEL '25</span>
+      <span class="dot">·</span>
+      <span>Available for projects</span>
+    </div>
+
+    <div class="hero-ctas hero-fade" data-delay="300">
+      <a href="#contact" class="btn-primary magnetic"><span>Get in touch →</span></a>
+      <a href="#work" class="btn-ghost magnetic">
+        <span>Selected work</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-bottom hero-fade" data-delay="500">
+    <span class="hero-scroll-label">
+      <span class="arrow">↓</span> Scroll to explore
+    </span>
+    <span class="hero-coords">41.6611° N · 91.5302° W</span>
+  </div>
+</section>
+
+<!-- Marquee 1 -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>CINEMATOGRAPHY</span>
+    <span class="ghost">DIRECTING</span>
+    <span>COLOR &amp; GRADE</span>
+    <span class="ghost">PRODUCING</span>
+    <span>EDITING</span>
+    <span class="ghost">SOCIAL CUTS</span>
+    <span>CINEMATOGRAPHY</span>
+    <span class="ghost">DIRECTING</span>
+    <span>COLOR &amp; GRADE</span>
+    <span class="ghost">PRODUCING</span>
+    <span>EDITING</span>
+    <span class="ghost">SOCIAL CUTS</span>
+  </div>
+</div>
+
+<!-- Work -->
+<section id="work">
+  <div class="container">
+    <div class="work-header">
+      <div>
+        <span class="section-label">Selected Work · '23–'25</span>
+        <h2 class="reveal-words" data-reveal>Built for the<br>biggest moments.</h2>
+      </div>
+      <div class="work-meta-right">
+        <span class="count">06 / PROJECTS</span>
+        <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer">
+          See more on X
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="work-grid">
+
+      <article class="card card-1 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/hawkeyes24/1400/900" alt="Iowa Hawkeyes Athletics" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">01</span>
+            <div class="card-tc">REEL.24 · 03:48<span>16:9 · UHD</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>Iowa Hawkeyes Athletics</h3>
+            <div class="card-meta">
+              <span class="card-cat">Sports Cinematography</span>
+              <span class="card-year">2024</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-2 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/ignatfb24/900/700" alt="Saint Ignatius Football" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">02</span>
+            <div class="card-tc">REEL.23 · 02:14<span>2.39:1</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>Saint Ignatius FB</h3>
+            <div class="card-meta">
+              <span class="card-cat">High School</span>
+              <span class="card-year">'23–24</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-3 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/flightcrew319/900/700" alt="Flight Crew 319" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">03</span>
+            <div class="card-tc">REEL.24 · 01:52<span>9:16 · social</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>Flight Crew 319</h3>
+            <div class="card-meta">
+              <span class="card-cat">Team Brand</span>
+              <span class="card-year">2024</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-4 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/ifccampaign/1100/800" alt="IFC Campaign" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">04</span>
+            <div class="card-tc">REEL.24 · 02:38<span>16:9</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>IFC Campaign</h3>
+            <div class="card-meta">
+              <span class="card-cat">Institutional</span>
+              <span class="card-year">2024</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-5 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/branded23/1200/800" alt="Branded Content" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">05</span>
+            <div class="card-tc">REEL.23 · 00:45<span>1:1 + 9:16</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>Branded Content</h3>
+            <div class="card-meta">
+              <span class="card-cat">Commercial</span>
+              <span class="card-year">2023</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-6 reveal-up" data-view>
+        <div class="card-img-wrap"><img src="https://picsum.photos/seed/event25/1920/700" alt="Event Documentary" loading="lazy"/></div>
+        <div class="card-overlay"></div>
+        <div class="card-grid-lines"><div class="h1"></div><div class="h2"></div></div>
+        <div class="card-content">
+          <div class="card-top">
+            <span class="card-num">06</span>
+            <div class="card-tc">REEL.25 · 04:12<span>2.39:1 · cinema</span></div>
+          </div>
+          <div class="card-bottom">
+            <h3>Game Day Documentary</h3>
+            <div class="card-meta">
+              <span class="card-cat">Documentary</span>
+              <span class="card-year">2025</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- Marquee 2 (reverse) -->
+<div class="marquee marquee-reverse">
+  <div class="marquee-track">
+    <span class="ghost">AVAILABLE FOR SS26</span>
+    <span>DM @SIMOPRODS</span>
+    <span class="ghost">IOWA CITY → ANYWHERE</span>
+    <span>NOW BOOKING '25</span>
+    <span class="ghost">AVAILABLE FOR SS26</span>
+    <span>DM @SIMOPRODS</span>
+    <span class="ghost">IOWA CITY → ANYWHERE</span>
+    <span>NOW BOOKING '25</span>
+  </div>
+</div>
+
+<!-- About -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-bio">
+        <span class="section-label">About · Bio</span>
+        <h2 class="reveal-words" data-reveal>Film-first thinking,<br>built for athletics.</h2>
+        <p class="reveal-up">Based in Iowa City, Johnny Simoncic is a video producer and cinematographer operating as <strong>Simo Prods</strong>. He creates game-day coverage, recruitment films, and branded content for college and high school programs across the midwest.</p>
+        <p class="reveal-up">Studying Business Marketing at the University of Iowa, he produces content for <strong>Hawkeyes athletics</strong> while building his client roster. His approach is cinematic and direct — built to perform on social feeds and stand up on the biggest screens.</p>
+        <div class="about-ctas reveal-up">
+          <a href="#contact" class="btn-primary magnetic"><span>Work together →</span></a>
+          <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer" class="btn-ghost magnetic"><span>Follow on X</span></a>
+        </div>
+        <div class="services">
+          <span class="service-tag reveal-up">Sports content</span>
+          <span class="service-tag reveal-up">Brand films</span>
+          <span class="service-tag reveal-up">Game day coverage</span>
+          <span class="service-tag reveal-up">Recruit edits</span>
+          <span class="service-tag reveal-up">Color grading</span>
+          <span class="service-tag reveal-up">Social cuts</span>
+        </div>
+      </div>
+
+      <div class="stats-grid reveal-up">
+        <div class="stat" data-num="01">
+          <div class="stat-value"><span data-counter="3" data-suffix="+">0</span></div>
+          <div class="stat-label">Years producing<br>under Simo Prods</div>
+        </div>
+        <div class="stat" data-num="02">
+          <div class="stat-value"><span data-counter="47">0</span></div>
+          <div class="stat-label">Projects delivered<br>'22 → present</div>
+        </div>
+        <div class="stat" data-num="03">
+          <div class="stat-value">D1</div>
+          <div class="stat-label">NCAA athletics<br>content production</div>
+        </div>
+        <div class="stat" data-num="04">
+          <div class="stat-value">'29</div>
+          <div class="stat-label">University of Iowa<br>Tippie · Marketing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <span class="section-label">Contact · Booking</span>
+    <h2 class="reveal-words" data-reveal>Let's make<br>something <em>real.</em></h2>
+    <p class="contact-sub reveal-up">Looking for a cinematographer for your program, brand, or event? Reach out — always open to the right project. Typical reply within 24 hours.</p>
+
+    <a href="mailto:johnny@simoprods.com" class="email-link reveal-up">
+      <span class="email">johnny@simoprods.com</span>
+      <svg class="email-arrow" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M5 16h22M19 6l10 10-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+
+    <div class="socials reveal-up">
+      <a href="https://x.com/simoprods" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a href="https://instagram.com/simoprods" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://linkedin.com/in/johnny-simoncic-607290316" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">YouTube</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container footer-inner">
+    <span class="footer-mark">© SIMO PRODS '25</span>
+    <div class="footer-mid">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#" id="back-to-top">Back to top ↑</a>
+    </div>
+    <span>IOWA CITY · 41.66°N 91.53°W</span>
+  </div>
+</footer>
+
+<!-- anime.js v4 -->
+<script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js"></script>
+
+<script>
+(() => {
+  'use strict';
+
+  // ── If anime didn't load, mark body & bail
+  if (typeof anime === 'undefined') {
+    document.body.classList.add('no-anime');
+    console.warn('anime.js not loaded — running without animations');
+    return;
+  }
+
+  const { animate, stagger, onScroll, utils, createTimeline } = anime;
+
+  // ── Live Iowa time (Central) ──────────────────────────────────────
+  const timeEl = document.getElementById('nav-time');
+  function tick() {
+    const now = new Date();
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+    timeEl.textContent = fmt.format(now);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ── Hero timecode (24fps frame counter) ───────────────────────────
+  const tc = document.getElementById('timecode');
+  const fps = 24;
+  let frames = 0;
+  const pad = n => String(n).padStart(2, '0');
+  setInterval(() => {
+    frames++;
+    const ff = frames % fps;
+    const total = Math.floor(frames / fps);
+    const ss = total % 60;
+    const mm = Math.floor(total / 60) % 60;
+    const hh = Math.floor(total / 3600);
+    tc.textContent = `${pad(hh)}:${pad(mm)}:${pad(ss)}:${pad(ff)}`;
+  }, 1000 / fps);
+
+  // ── Nav scroll state ───────────────────────────────────────────────
+  const nav = document.getElementById('topnav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // ── Scroll progress bar (sync, scroll-linked) ──────────────────────
+  animate('#progress-bar', {
+    scaleX: [0, 1],
+    ease: 'linear',
+    autoplay: onScroll({ sync: true, target: document.documentElement })
+  });
+
+  // ── Hero entrance ──────────────────────────────────────────────────
+  // FILL line
+  animate('.hero-name-fill .char', {
+    translateY: ['110%', '0%'],
+    opacity: [0, 1],
+    duration: 950,
+    delay: stagger(38, { start: 200 }),
+    ease: 'out(4)'
+  });
+  // OUTLINE line (slightly later)
+  animate('.hero-name-outline .char', {
+    translateY: ['110%', '0%'],
+    opacity: [0, 1],
+    duration: 950,
+    delay: stagger(38, { start: 520 }),
+    ease: 'out(4)'
+  });
+
+  // Other hero elements
+  document.querySelectorAll('.hero-fade').forEach((el, i) => {
+    const baseDelay = parseInt(el.dataset.delay || 0, 10);
+    animate(el, {
+      translateY: [20, 0],
+      opacity: [0, 1],
+      duration: 800,
+      delay: 900 + baseDelay,
+      ease: 'out(3)'
+    });
+  });
+
+  // ── Word splitter for reveal headings ──────────────────────────────
+  document.querySelectorAll('[data-reveal]').forEach(el => {
+    const html = el.innerHTML;
+    // Split text nodes word-by-word but preserve <br> and <em>
+    const tokens = html.split(/(<[^>]+>)/);
+    const out = tokens.map(tok => {
+      if (tok.startsWith('<')) return tok;
+      return tok
+        .split(/(\s+)/)
+        .map(w => {
+          if (/^\s+$/.test(w)) return w;
+          if (!w) return '';
+          return `<span class="word"><span>${w}</span></span>`;
+        })
+        .join('');
+    }).join('');
+    el.innerHTML = out;
+  });
+
+  // Reveal words on scroll
+  document.querySelectorAll('.reveal-words').forEach(headline => {
+    const words = headline.querySelectorAll('.word > span');
+    animate(words, {
+      translateY: ['110%', '0%'],
+      duration: 850,
+      delay: stagger(55),
+      ease: 'out(4)',
+      autoplay: onScroll({ enter: 'bottom-=80', once: true })
+    });
+  });
+
+  // ── Reveal-up elements on scroll ───────────────────────────────────
+  document.querySelectorAll('.reveal-up').forEach((el, i) => {
+    animate(el, {
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 800,
+      ease: 'out(3)',
+      delay: (i % 4) * 80,
+      autoplay: onScroll({ enter: 'bottom-=60', once: true })
+    });
+  });
+
+  // ── Stat counters ──────────────────────────────────────────────────
+  document.querySelectorAll('[data-counter]').forEach(el => {
+    const target = parseFloat(el.dataset.counter);
+    const suffix = el.dataset.suffix || '';
+    const obj = { val: 0 };
+    animate(obj, {
+      val: target,
+      duration: 1900,
+      ease: 'out(3)',
+      onUpdate: () => {
+        el.textContent = Math.round(obj.val) + suffix;
+      },
+      autoplay: onScroll({ enter: 'bottom-=100', once: true })
+    });
+  });
+
+  // ── Magnetic buttons ───────────────────────────────────────────────
+  document.querySelectorAll('.magnetic').forEach(btn => {
+    const strength = 0.28;
+    btn.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const x = (e.clientX - rect.left - rect.width / 2) * strength;
+      const y = (e.clientY - rect.top - rect.height / 2) * strength;
+      animate(btn, {
+        translateX: x,
+        translateY: y,
+        duration: 350,
+        ease: 'out(3)'
+      });
+    });
+    btn.addEventListener('mouseleave', () => {
+      animate(btn, {
+        translateX: 0,
+        translateY: 0,
+        duration: 600,
+        ease: 'spring(1, 80, 9, 0)'
+      });
+    });
+  });
+
+  // ── Card image parallax on hover ───────────────────────────────────
+  document.querySelectorAll('.card').forEach(card => {
+    const img = card.querySelector('.card-img-wrap');
+    if (!img) return;
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * -16;
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * -16;
+      animate(img, {
+        translateX: x,
+        translateY: y,
+        duration: 700,
+        ease: 'out(3)'
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      animate(img, {
+        translateX: 0,
+        translateY: 0,
+        duration: 900,
+        ease: 'out(4)'
+      });
+    });
+  });
+
+  // ── Custom cursor ──────────────────────────────────────────────────
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let rx = mx, ry = my;
+
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX;
+    my = e.clientY;
+    cursor.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+  });
+
+  // Smooth follow for ring
+  function loop() {
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Cursor hover states
+  document.querySelectorAll('a, button, .magnetic').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-view'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-view'));
+  });
+
+  // ── Back to top ────────────────────────────────────────────────────
+  document.getElementById('back-to-top').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+})();
+</script>
+
+</body>
+</html>
